@@ -36,6 +36,9 @@ export default function Header() {
         const getSession = async () => {
             const { data } = await supabase.auth.getSession();
             setUser(data.session?.user ?? null);
+            if (data.session?.user ?? null) {
+                router.push("/dashboard");
+            }
         };
         getSession();
     }, []);

@@ -21,7 +21,7 @@ export default function LogIn() {
             if (error) { throw error; }
             setEmail("");
             setPassword("");
-            router.push("/");
+            router.push("/dashboard");
         } catch (e) {
             showNotification({
                 title: "Something went wrong",

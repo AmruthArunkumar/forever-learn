@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import TabHeader from "@/components/TabHeader";
 import { supabase } from "@/app/supabase/config";
 import { useRouter } from "next/navigation";
-import CardSetsPage from "@/components/YourLibraryPage";
 import { User } from "@supabase/supabase-js";
 import { showErrorNotification, showLoadingNotification, showSuccessNotification } from "@/utility/notification";
 import { Set } from "@/utility/types";

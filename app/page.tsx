@@ -13,7 +13,7 @@ export default function Home() {
         const getSession = async () => {
             const { data } = await supabase.auth.getSession();
             if (data.session?.user ?? null) {
-                router.push("/dashboard");
+                router.push("/home");
             }
         };
         getSession();

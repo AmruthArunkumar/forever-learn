@@ -65,6 +65,8 @@ export default function Header() {
                     right: "8px",
                     height: "60px",
                     borderBottom: "2px solid light-dark(#DDDDDD, #444444)",
+                    background: "var(--mantine-color-body)",
+                    zIndex: 500
                 }}
             >
                 <Group justify="right" h="100%">

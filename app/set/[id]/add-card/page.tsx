@@ -4,17 +4,20 @@ import { ActionIcon, Box, Button, Group, Input, NativeSelect, SegmentedControl, 
 import { useEffect, useState } from "react";
 import TabHeader from "@/components/TabHeader";
 import { supabase } from "@/app/supabase/config";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { User } from "@supabase/supabase-js";
 import Header from "@/components/Header";
 import SaveIcon from "@mui/icons-material/Save";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { IconButton } from "@mui/material";
+import { showErrorNotification, showSuccessNotification } from "@/utility/notification";
 
 export default function AddCard() {
     const [user, setUser] = useState<User | null>(null);
 
     const router = useRouter();
+    const params = useParams();
+    const id = params.id;
 
     useEffect(() => {
         const getSession = async () => {
@@ -50,7 +53,22 @@ export default function AddCard() {
         }
     }, [user]);
 
-    const [name, setName] = useState<string>("");
+    const [front, setFront] = useState<string>("");
+    const [back, setBack] = useState<string>("");
+
+    const handleAddCard = async () => {
+        if (front == "" || back == "") {
+            showErrorNotification("Front and back text are required");
+        } else {
+            try {
+                const { data, error } = await supabase.from("cards").insert({set_id: id, front: front, back: back});
+                if (error) throw error;
+                showSuccessNotification("Card added to set!")
+            } catch (error) {
+                showErrorNotification("Try again later");
+            }
+        }
+    }
 
     return (
         <Box style={{ width: "100vw", height: "100vh", display: "flex", flexDirection: "column" }}>
@@ -75,17 +93,15 @@ export default function AddCard() {
                             radius={"xs"}
                             size="md"
                             color="pale-green"
-                            onClick={async () => {
-                                console.log(name);
-                            }}
+                            onClick={handleAddCard}
                         >
                             Save
                         </Button>
                     </Group>
                     <Text fw={700} size="lg" pb={"10px"} pt={"10px"}>Front</Text>
                     <Textarea
-                        value={name}
-                        onChange={(e) => setName(e.currentTarget.value)}
+                        value={front}
+                        onChange={(e) => setFront(e.currentTarget.value)}
                         size="md"
                         radius="xs"
                         placeholder="Enter Text Here"
@@ -94,8 +110,8 @@ export default function AddCard() {
                     />
                     <Text fw={700} size="lg" pb={"10px"} pt={"10px"}>Back</Text>
                     <Textarea
-                        value={name}
-                        onChange={(e) => setName(e.currentTarget.value)}
+                        value={back}
+                        onChange={(e) => setBack(e.currentTarget.value)}
                         size="md"
                         radius="xs"
                         placeholder="Enter Text Here"

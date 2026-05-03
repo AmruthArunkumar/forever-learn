@@ -5,9 +5,9 @@ import { Button, Text, TextInput, Stack, PasswordInput, Box } from "@mantine/cor
 import CancelIcon from "@mui/icons-material/Cancel";
 import { supabase } from "@/app/supabase/config";
 import { useRouter } from "next/navigation";
-import { showNotification } from "@mantine/notifications";
 import Header from "@/components/Header";
 import { AuthError } from "@supabase/supabase-js";
+import { showErrorNotification } from "@/utility/notification";
 
 export default function LogIn() {
     const [email, setEmail]: [string, Dispatch<SetStateAction<string>>] = useState<string>("");
@@ -21,20 +21,9 @@ export default function LogIn() {
             if (error) { throw error; }
             setEmail("");
             setPassword("");
-            router.push("/dashboard");
+            router.push("/home");
         } catch (e) {
-            showNotification({
-                title: "Something went wrong",
-                message: e instanceof AuthError ? e.message : "Please Try Again Later",
-                color: "red",
-                radius: "xs",
-                style: {
-                    maxWidth: "40vw",
-                    marginLeft: "auto",
-                    marginRight: "auto",
-                },
-                icon: <CancelIcon />,
-            });
+            showErrorNotification(e instanceof AuthError ? e.message : "Please Try Again Later")
         }
     };
 

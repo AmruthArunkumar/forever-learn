@@ -20,10 +20,10 @@ import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { supabase } from "@/app/supabase/config";
-import { TodayOutlined, StyleOutlined, TimelineOutlined } from "@mui/icons-material";
-import { dashboardCardsPage, dashboardDailyPage, dashboardProgressPage, titleCase } from "@/utility/strings";
+import { HomeRounded, FolderOpenRounded, TimelineOutlined } from "@mui/icons-material";
+import { LibraryPage, DailyPage, ProgressPage, titleCase } from "@/utility/strings";
 
-export default function TabHeader({ tab, setTab }: { tab: number; setTab: Dispatch<SetStateAction<number>> }) {
+export default function TabHeader({ tab }: { tab: number }) {
     const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
 
     const { setColorScheme } = useMantineColorScheme();
@@ -78,32 +78,32 @@ export default function TabHeader({ tab, setTab }: { tab: number; setTab: Dispat
                             <Tabs
                                 color="pale-green"
                                 radius="xs"
-                                defaultValue={dashboardDailyPage}
-                                value={tab === 0 ? dashboardDailyPage : tab === 1 ? dashboardCardsPage : dashboardProgressPage}
+                                defaultValue={DailyPage}
+                                value={tab === 0 ? DailyPage : tab === 1 ? LibraryPage : ProgressPage}
                                 onChange={(value) => {
-                                    if (value === dashboardDailyPage) setTab(0);
-                                    if (value === dashboardCardsPage) setTab(1);
-                                    if (value === dashboardProgressPage) setTab(2);
+                                    if (value === DailyPage) router.push("/home");
+                                    if (value === LibraryPage) router.push("/library");
+                                    if (value === ProgressPage) router.push("/progress");
                                 }}
                             >
                                 <Tabs.List>
                                     <Tabs.Tab
-                                        value={dashboardDailyPage}
-                                        leftSection={<TodayOutlined />}
+                                        value={DailyPage}
+                                        leftSection={<HomeRounded />}
                                     >
-                                        {titleCase(dashboardDailyPage)}
+                                        {titleCase(DailyPage)}
                                     </Tabs.Tab>
                                     <Tabs.Tab
-                                        value={dashboardCardsPage}
-                                        leftSection={<StyleOutlined />}
+                                        value={LibraryPage}
+                                        leftSection={<FolderOpenRounded />}
                                     >
-                                        {titleCase(dashboardCardsPage)}
+                                        {titleCase(LibraryPage)}
                                     </Tabs.Tab>
                                     <Tabs.Tab
-                                        value={dashboardProgressPage}
+                                        value={ProgressPage}
                                         leftSection={<TimelineOutlined />}
                                     >
-                                        {titleCase(dashboardProgressPage)}
+                                        {titleCase(ProgressPage)}
                                     </Tabs.Tab>
                                 </Tabs.List>
                             </Tabs>
@@ -158,34 +158,34 @@ export default function TabHeader({ tab, setTab }: { tab: number; setTab: Dispat
                             variant={tab == 0 ? "light" : "default"}
                             color={"pale-green"}
                             onClick={() => {
-                                setTab(0);
+                                router.push("/home");
                                 closeDrawer();
                             }}
                             radius={"xs"}
                         >
-                            {titleCase(dashboardDailyPage)}
+                            {titleCase(DailyPage)}
                         </Button>
                         <Button
                             variant={tab == 1 ? "light" : "default"}
                             color={"pale-green"}
                             onClick={() => {
-                                setTab(1);
+                                router.push("/library");
                                 closeDrawer();
                             }}
                             radius={"xs"}
                         >
-                            {titleCase(dashboardCardsPage)}
+                            {titleCase(LibraryPage)}
                         </Button>
                         <Button
                             variant={tab == 2 ? "light" : "default"}
                             color={"pale-green"}
                             onClick={() => {
-                                setTab(2);
+                                router.push("/progress");
                                 closeDrawer();
                             }}
                             radius={"xs"}
                         >
-                            {titleCase(dashboardProgressPage)}
+                            {titleCase(ProgressPage)}
                         </Button>
                     </Button.Group>
                 </Group>

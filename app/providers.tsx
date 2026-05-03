@@ -3,7 +3,6 @@
 import { ReactNode } from "react";
 import { createTheme, MantineColorsTuple, MantineProvider, MantineThemeOverride } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
-import "@mantine/notifications/styles.css";
 
 export default function Providers({ children }: { children: ReactNode }) {
     const paleGreen: MantineColorsTuple = [

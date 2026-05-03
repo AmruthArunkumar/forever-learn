@@ -1,6 +1,6 @@
-export const dashboardDailyPage = "daily overview";
-export const dashboardCardsPage = "flashcard sets";
-export const dashboardProgressPage = "your progress";
+export const DailyPage = "home";
+export const LibraryPage = "your library";
+export const ProgressPage = "your progress";
 
 export function titleCase(str: string) {
     var splitStr = str.toLowerCase().split(" ");

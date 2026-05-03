@@ -5,6 +5,11 @@
     --font-mono: var(--font-geist-mono);
 }
 
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 hr {
     display: block;
     width: 100%;

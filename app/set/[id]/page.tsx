@@ -37,6 +37,7 @@ import CreateRoundedIcon from "@mui/icons-material/CreateRounded";
 import AddIcon from "@mui/icons-material/Add";
 import StyleRoundedIcon from "@mui/icons-material/StyleRounded";
 import DeleteIcon from '@mui/icons-material/Delete';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditIcon from '@mui/icons-material/Edit';
 import Header from "@/components/Header";
 
@@ -119,7 +120,12 @@ export default function SetViewer() {
                     m={"8px"}
                     style={{ flexDirection: "column", overflowY: "auto", alignItems: "center" }}
                 >
-                    <Title order={1} pb={"8px"}>{name}</Title>
+                    <Group display={"flex"} justify="left" h={50} w={{ base: "100%", md: "975px" }} mb={"8px"}>
+                        <ActionIcon variant="default" size="lg" onClick={() => router.back()} radius={"xs"}>
+                            <ArrowBackIcon />
+                        </ActionIcon>
+                        <Title order={1} pb={"4px"} pl={"4px"}>{name}</Title>
+                    </Group>
                     {!cards && (
                         <SimpleGrid spacing="md" w={{ base: "100%", md: "975px" }}>
                             {Array.from(Array(6).keys()).map((e, i) => (

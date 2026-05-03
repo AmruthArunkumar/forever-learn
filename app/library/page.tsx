@@ -31,7 +31,7 @@ import { Set } from "@/utility/types";
 import KeyboardRoundedIcon from "@mui/icons-material/KeyboardRounded";
 import CreateRoundedIcon from "@mui/icons-material/CreateRounded";
 import AddIcon from "@mui/icons-material/Add";
-import StyleRoundedIcon from '@mui/icons-material/StyleRounded';
+import StyleRoundedIcon from "@mui/icons-material/StyleRounded";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 export default function Library() {
@@ -125,8 +125,8 @@ export default function Library() {
     };
 
     const handleSetClicked = (id: number) => {
-        router.push(`/set/${id}`)
-    }
+        router.push(`/set/${id}`);
+    };
 
     return (
         <Box style={{ width: "100vw", height: "100vh", display: "flex", flexDirection: "column" }}>
@@ -201,21 +201,48 @@ export default function Library() {
                                 .sort((a, b) => a.name.localeCompare(b.name))
                                 .map((n, i) => {
                                     return (
-                                        <Paper withBorder shadow="sm" radius="md" p="16px" key={i} display={"flex"} onClick={() => handleSetClicked(n.set_id)}>
+                                        <Paper
+                                            withBorder
+                                            shadow="sm"
+                                            radius="md"
+                                            p="16px"
+                                            key={i}
+                                            display={"flex"}
+                                            onClick={() => handleSetClicked(n.set_id)}
+                                            style={{ cursor: "pointer" }}
+                                        >
                                             <StyleRoundedIcon sx={{ color: "", mr: "16px" }} />
                                             <Text flex={1} truncate="end">
                                                 {n.name}
                                             </Text>
                                             <Menu shadow="md" width={200}>
                                                 <Menu.Target>
-                                                    <ActionIcon variant="subtle" color="gray">
+                                                    <ActionIcon
+                                                        variant="subtle"
+                                                        color="gray"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                        }}
+                                                    >
                                                         <MoreVertIcon />
                                                     </ActionIcon>
                                                 </Menu.Target>
 
                                                 <Menu.Dropdown>
-                                                    <Menu.Item onClick={() => {}}>Add Cards</Menu.Item>
-                                                    <Menu.Item color="red" onClick={() => handleDeleteSet(n.set_id)}>
+                                                    <Menu.Item
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                        }}
+                                                    >
+                                                        Add Cards
+                                                    </Menu.Item>
+                                                    <Menu.Item
+                                                        color="red"
+                                                        onClick={(e) => {
+                                                            handleDeleteSet(n.set_id);
+                                                            e.stopPropagation();
+                                                        }}
+                                                    >
                                                         Delete
                                                     </Menu.Item>
                                                 </Menu.Dropdown>

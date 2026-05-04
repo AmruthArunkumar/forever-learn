@@ -16,11 +16,10 @@
     "@mui/icons-material": "^7.3.9",
     "@mui/material": "^7.3.9",
     "@supabase/supabase-js": "^2.99.3",
-    "@types/nodemailer": "^8.0.0",
     "next": "16.1.6",
-    "nodemailer": "^8.0.7",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "resend": "^6.12.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

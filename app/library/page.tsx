@@ -115,9 +115,10 @@ export default function Library() {
                     name: name,
                     maintain: true,
                     type: cardType,
-                });
+                }).select().single();
                 if (error) throw error;
-                router.push("/add-card");
+                console.log(data)
+                router.push(`/set/${data.set_id}/add-card`);
             } catch (error) {
                 showErrorNotification("Try again later");
             }

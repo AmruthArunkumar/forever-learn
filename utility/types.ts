@@ -14,3 +14,9 @@ export interface Card {
     back: string;
     created_at: string;
 }
+
+export interface UserType {
+    user_id: string;
+    email: string;
+    created_at?: string;
+}

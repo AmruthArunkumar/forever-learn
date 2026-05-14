@@ -27,14 +27,6 @@ export async function GET(request: NextRequest) {
         }
     }
 
-    // const response = await supabase.from("users").select("user_id, email");
-
-    // const users: UserType[] = response.data as UserType[];
-    // const users = Array.from({ length: 100 }, (_, i) => ({
-    //     user_id: `mock-uuid-${i}`,
-    //     email: `amruth+test${i}@gmail.com` // Using + aliases lets you receive all to one inbox
-    // }));
-
     try {
         await client.trigger({
             url: `${BASE_URL}/api/workflow/manager`,

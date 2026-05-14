@@ -11,6 +11,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { IconButton } from "@mui/material";
 import { showErrorNotification, showSuccessNotification } from "@/utility/notification";
+import { SmartLatex } from "@/utility/smartLatex";
 
 export default function AddCard() {
     const [user, setUser] = useState<User | null>(null);
@@ -61,14 +62,14 @@ export default function AddCard() {
             showErrorNotification("Front and back text are required");
         } else {
             try {
-                const { data, error } = await supabase.from("cards").insert({set_id: id, front: front, back: back});
+                const { data, error } = await supabase.from("cards").insert({ set_id: id, front: front, back: back });
                 if (error) throw error;
-                showSuccessNotification("Card added to set!")
+                showSuccessNotification("Card added to set!");
             } catch (error) {
                 showErrorNotification("Try again later");
             }
         }
-    }
+    };
 
     return (
         <Box style={{ width: "100vw", height: "100vh", display: "flex", flexDirection: "column" }}>
@@ -98,7 +99,9 @@ export default function AddCard() {
                             Save
                         </Button>
                     </Group>
-                    <Text fw={700} size="lg" pb={"10px"} pt={"10px"}>Front</Text>
+                    <Text fw={700} size="lg" pb={"10px"} pt={"10px"}>
+                        Front
+                    </Text>
                     <Textarea
                         value={front}
                         onChange={(e) => setFront(e.currentTarget.value)}
@@ -107,8 +110,12 @@ export default function AddCard() {
                         placeholder="Enter Text Here"
                         autosize
                         minRows={4}
+                        pb={"8px"}
                     />
-                    <Text fw={700} size="lg" pb={"10px"} pt={"10px"}>Back</Text>
+                    <SmartLatex content={front}></SmartLatex>
+                    <Text fw={700} size="lg" pb={"10px"} pt={"10px"}>
+                        Back
+                    </Text>
                     <Textarea
                         value={back}
                         onChange={(e) => setBack(e.currentTarget.value)}
@@ -117,7 +124,9 @@ export default function AddCard() {
                         placeholder="Enter Text Here"
                         autosize
                         minRows={4}
+                        pb={"8px"}
                     />
+                    <SmartLatex content={back}></SmartLatex>
                 </Box>
             )}
         </Box>

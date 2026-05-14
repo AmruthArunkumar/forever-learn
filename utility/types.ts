@@ -13,6 +13,16 @@ export interface Card {
     front: string;
     back: string;
     created_at: string;
+    stability: number | null;
+    difficulty: number | null;
+    last_review: string | null;
+    special_type: string | null;
+}
+
+export interface CardStats {
+    stability: number | null;
+    difficulty?: number | null;
+    last_review: string | null;
 }
 
 export interface UserType {

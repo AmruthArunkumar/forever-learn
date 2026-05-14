@@ -36,10 +36,13 @@ import KeyboardRoundedIcon from "@mui/icons-material/KeyboardRounded";
 import CreateRoundedIcon from "@mui/icons-material/CreateRounded";
 import AddIcon from "@mui/icons-material/Add";
 import StyleRoundedIcon from "@mui/icons-material/StyleRounded";
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from "@mui/icons-material/Edit";
 import Header from "@/components/Header";
+import { checkFading, checkForgotten, checkLearning, checkStrong, interval, retrievability } from "@/utility/FSRS";
+import { SmartLatex } from "@/utility/smartLatex";
+import { RowCard } from "@/components/FlashCard";
 
 export default function SetViewer() {
     const [user, setUser] = useState<User | null>(null);
@@ -92,39 +95,94 @@ export default function SetViewer() {
 
     const handleGetAllCardsInSet = async () => {
         const { data, error } = await supabase.from("cards").select("*").eq("set_id", id);
-        setCards(data as Card[]);
+        setCards(
+            (data as Card[]).sort((a, b) => {
+                return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+            }),
+        );
         const response = await supabase.from("sets").select("name").eq("set_id", id).limit(1);
-        setName(response.data?.[0].name ?? "")
+        setName(response.data?.[0]?.name ?? null);
     };
 
     const handleDeleteCard = async (card_id: number) => {
         try {
             const { data, error } = await supabase.from("cards").delete().eq("card_id", card_id);
             if (error) throw error;
-            showSuccessNotification("Card removed from set!")
-            await handleGetAllCardsInSet()
+            showSuccessNotification("Card removed from set!");
+            await handleGetAllCardsInSet();
         } catch (error) {
             showErrorNotification("Try again later");
         }
-    }
+    };
 
     return (
         <Box style={{ width: "100vw", height: "100vh", display: "flex", flexDirection: "column" }}>
             <Box style={{ height: "60px" }}>
                 <Header />
             </Box>
-            {user && (
+            {user && name == null && (
                 <Box
                     flex={1}
                     display={"flex"}
                     m={"8px"}
                     style={{ flexDirection: "column", overflowY: "auto", alignItems: "center" }}
                 >
-                    <Group display={"flex"} justify="left" h={50} w={{ base: "100%", md: "975px" }} mb={"8px"}>
+                    <Group
+                        display={"flex"}
+                        justify="left"
+                        h={50}
+                        w={{ base: "100%", md: "975px" }}
+                        mb={"8px"}
+                        mt={"8px"}
+                    >
                         <ActionIcon variant="default" size="lg" onClick={() => router.back()} radius={"xs"}>
                             <ArrowBackIcon />
                         </ActionIcon>
-                        <Title order={1} pb={"4px"} pl={"4px"}>{name}</Title>
+                        <Title order={1} pb={"4px"} pl={"4px"}>
+                            Set Not Found
+                        </Title>
+                    </Group>
+                </Box>
+            )}
+            {user && name && (
+                <Box
+                    flex={1}
+                    display={"flex"}
+                    m={"8px"}
+                    style={{ flexDirection: "column", overflowY: "auto", alignItems: "center" }}
+                >
+                    <Group
+                        display={"flex"}
+                        justify="left"
+                        h={50}
+                        w={{ base: "100%", md: "975px" }}
+                        mb={"8px"}
+                        mt={"8px"}
+                    >
+                        <ActionIcon variant="default" size="lg" onClick={() => router.back()} radius={"xs"}>
+                            <ArrowBackIcon />
+                        </ActionIcon>
+                        <Title order={1} pb={"4px"} pl={"4px"}>
+                            {name}
+                        </Title>
+                    </Group>
+                    <Divider orientation="horizontal" w={{ base: "100%", md: "975px" }} />
+                    <Group
+                        display={"flex"}
+                        justify="left"
+                        h={50}
+                        w={{ base: "100%", md: "975px" }}
+                        mb={"16px"}
+                        mt={"16px"}
+                    >
+                        <Button
+                            radius={"xs"}
+                            size="md"
+                            variant="default"
+                            onClick={() => router.push(`/set/${id}/study`)}
+                        >
+                            Study Now
+                        </Button>
                     </Group>
                     {!cards && (
                         <SimpleGrid spacing="md" w={{ base: "100%", md: "975px" }}>
@@ -138,37 +196,66 @@ export default function SetViewer() {
                         style={{ flexDirection: "column", gap: "16px", alignItems: "center", width: "100%" }}
                     >
                         <SimpleGrid spacing="md" w={{ base: "100%", md: "975px" }}>
-                            {(cards ?? []).map((c, i) => {
-                                return (
-                                    <Paper withBorder shadow="sm" radius="md" p="8px" key={i} display={"flex"} style={{ flexDirection: "column" }}>
-                                        <Box ml={"auto"} display={"flex"} style={{ flexDirection: "row" }}>
-                                        <ActionIcon variant="subtle" color="gray" mr={"8px"} onClick={() => handleDeleteCard(c.card_id)}>
-                                            <DeleteIcon />
-                                        </ActionIcon>
-                                        <ActionIcon variant="subtle" color="gray" mr={"4px"}>
-                                            <EditIcon />
-                                        </ActionIcon>
-                                        </Box>
-                                        <Flex direction={{ base: "column", xs: "row" }} w={"100%"} gap="xs" align="stretch">
-                                            <Box p="8px" display={"flex"} flex={1}>
-                                                <Text style={{ whiteSpace: "normal", overflowWrap: "break-word", wordBreak: "break-word"}}>
-                                                    {c.front}
-                                                </Text>
-                                            </Box>
-                                            <Divider orientation="horizontal" hiddenFrom="xs" ml={"4px"} mr={"4px"} />
-                                            <Divider orientation="vertical" visibleFrom="xs" mt={"4px"} mb={"4px"} />
-                                            <Box p="8px" display={"flex"} flex={1}>
-                                                <Text style={{ whiteSpace: "normal", overflowWrap: "break-word", wordBreak: "break-word"}}>
-                                                    {c.back}
-                                                </Text>
-                                            </Box>
-                                        </Flex>
-                                    </Paper>
-                                );
-                            })}
+                            {(cards ?? []).filter((c) => !c.last_review).length > 0 && (
+                                <Text size="lg" fw={700} c={"white"}>
+                                    New
+                                </Text>
+                            )}
+                            {(cards ?? [])
+                                .filter((c) => !c.last_review)
+                                .map((c, i) => {
+                                    return <RowCard key={i} handleDeleteCard={handleDeleteCard} c={c} />;
+                                })}
+                            {(cards ?? []).filter((c) => checkStrong(c)).length > 0 && (
+                                <Text size="lg" fw={700} c={"blue"}>
+                                    Strong
+                                </Text>
+                            )}
+                            {(cards ?? [])
+                                .filter((c) => checkStrong(c))
+                                .map((c, i) => {
+                                    return <RowCard key={i} handleDeleteCard={handleDeleteCard} c={c} />;
+                                })}
+                            {(cards ?? []).filter((c) => checkLearning(c)).length > 0 && (
+                                <Text size="lg" fw={700} c={"green"}>
+                                    Learning
+                                </Text>
+                            )}
+                            {(cards ?? [])
+                                .filter((c) => checkLearning(c))
+                                .map((c, i) => {
+                                    return <RowCard key={i} handleDeleteCard={handleDeleteCard} c={c} />;
+                                })}
+                            {(cards ?? []).filter((c) => checkFading(c)).length > 0 && (
+                                <Text size="lg" fw={700} c={"orange"}>
+                                    Fading
+                                </Text>
+                            )}
+                            {(cards ?? [])
+                                .filter((c) => checkFading(c))
+                                .map((c, i) => {
+                                    return <RowCard key={i} handleDeleteCard={handleDeleteCard} c={c} />;
+                                })}
+                            {(cards ?? []).filter((c) => checkForgotten(c)).length > 0 && (
+                                <Text size="lg" fw={700} c={"red"}>
+                                    Forgotten
+                                </Text>
+                            )}
+                            {(cards ?? [])
+                                .filter((c) => checkForgotten(c))
+                                .map((c, i) => {
+                                    return <RowCard key={i} handleDeleteCard={handleDeleteCard} c={c} />;
+                                })}
                         </SimpleGrid>
                         <Affix position={{ bottom: 25, right: 25 }}>
-                            <ActionIcon color="pale-green" radius="xl" size={60} onClick={() => {router.push(`/set/${id}/add-card`)}}>
+                            <ActionIcon
+                                color="pale-green"
+                                radius="xl"
+                                size={60}
+                                onClick={() => {
+                                    router.push(`/set/${id}/add-card`);
+                                }}
+                            >
                                 <AddIcon />
                             </ActionIcon>
                         </Affix>

@@ -16,10 +16,13 @@
     "@mui/icons-material": "^7.3.9",
     "@mui/material": "^7.3.9",
     "@supabase/supabase-js": "^2.99.3",
+    "@types/react-katex": "^3.0.4",
     "@upstash/workflow": "^1.2.0",
+    "katex": "^0.16.45",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-katex": "^3.1.0",
     "resend": "^6.12.2"
   },
   "devDependencies": {

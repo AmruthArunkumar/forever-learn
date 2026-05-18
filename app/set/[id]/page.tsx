@@ -104,7 +104,7 @@ export default function SetViewer() {
         setName(response.data?.[0]?.name ?? null);
     };
 
-    const handleDeleteCard = async (card_id: number) => {
+    const handleDeleteCard = async (card_id: string) => {
         try {
             const { data, error } = await supabase.from("cards").delete().eq("card_id", card_id);
             if (error) throw error;

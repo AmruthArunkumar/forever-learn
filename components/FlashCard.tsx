@@ -7,7 +7,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import { SmartLatex } from "@/utility/smartLatex";
 import { Card } from "@/utility/types";
 
-export function RowCard({ handleDeleteCard, c }: { handleDeleteCard: (id: number) => {}; c: Card }) {
+export function RowCard({ handleDeleteCard, c }: { handleDeleteCard: (id: string) => {}; c: Card }) {
     return (
         <Paper withBorder shadow="sm" radius="md" p="8px" display={"flex"} style={{ flexDirection: "column" }}>
             <Box ml={"auto"} display={"flex"} style={{ flexDirection: "row" }}>
@@ -44,6 +44,52 @@ export function RowCard({ handleDeleteCard, c }: { handleDeleteCard: (id: number
                     </Text>
                 </Box>
             </Flex>
+        </Paper>
+    );
+}
+
+export function FlipCard({
+    handleClick,
+    currCard,
+    cardInfo,
+}: {
+    handleClick: () => void;
+    currCard: { card: number; section: string };
+    cardInfo: Card;
+}) {
+    return (
+        <Paper
+            withBorder
+            shadow="sm"
+            radius="md"
+            p="16px"
+            display={"flex"}
+            style={{ justifyContent: "center" }}
+            onClick={handleClick}
+        >
+            <Text
+                style={{
+                    whiteSpace: "normal",
+                    overflowWrap: "break-word",
+                    wordBreak: "break-word",
+                    alignItems: "center",
+                    fontSize: "20px",
+                }}
+                display={"flex"}
+                mih={"200px"}
+            >
+                {currCard.section == "front" ? (
+                    cardInfo.special_type ? (
+                        <SmartLatex content={cardInfo.front} />
+                    ) : (
+                        cardInfo.front
+                    )
+                ) : cardInfo.special_type ? (
+                    <SmartLatex content={cardInfo.back} />
+                ) : (
+                    cardInfo.back
+                )}
+            </Text>
         </Paper>
     );
 }

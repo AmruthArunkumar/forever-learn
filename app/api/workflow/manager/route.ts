@@ -17,7 +17,7 @@ const BASE_URL = process.env.APP_URL ? `https://${process.env.APP_URL}` : `http:
 export const { POST } = serve(async (context) => {
     const users = await context.run("get-users", async () => {
         const response = await supabase.from("users").select("user_id, email");
-        return response.data ?? []
+        return response.data ?? [];
     });
 
     await context.run("start-workers", async () => {

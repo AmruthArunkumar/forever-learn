@@ -55,6 +55,7 @@ import {
     stability,
 } from "@/utility/FSRS";
 import { SmartLatex } from "@/utility/smartLatex";
+import { FlipCard } from "@/components/FlashCard";
 
 export default function StudyPage() {
     const [user, setUser] = useState<User | null>(null);
@@ -123,7 +124,7 @@ export default function StudyPage() {
     };
 
     const handleForgot = async (card: Card) => {
-        const card_id: number = card.card_id;
+        const card_id: string = card.card_id;
         const initialStab: boolean = card.stability ? false : true;
         const initialDiff: boolean = card.stability ? false : true;
 
@@ -157,7 +158,7 @@ export default function StudyPage() {
     };
 
     const handleHard = async (card: Card) => {
-        const card_id: number = card.card_id;
+        const card_id: string = card.card_id;
         const initialStab: boolean = card.stability ? false : true;
         const initialDiff: boolean = card.stability ? false : true;
 
@@ -189,7 +190,7 @@ export default function StudyPage() {
     };
 
     const handleGood = async (card: Card) => {
-        const card_id: number = card.card_id;
+        const card_id: string = card.card_id;
         const initialStab: boolean = card.stability ? false : true;
         const initialDiff: boolean = card.stability ? false : true;
 
@@ -221,7 +222,7 @@ export default function StudyPage() {
     };
 
     const handleEasy = async (card: Card) => {
-        const card_id: number = card.card_id;
+        const card_id: string = card.card_id;
         const initialStab: boolean = card.stability ? false : true;
         const initialDiff: boolean = card.stability ? false : true;
 
@@ -306,44 +307,16 @@ export default function StudyPage() {
                             style={{ flexDirection: "column", gap: "16px", alignItems: "center", width: "100%" }}
                         >
                             <Box w={{ base: "100%", sm: "750px" }}>
-                                <Paper
-                                    withBorder
-                                    shadow="sm"
-                                    radius="md"
-                                    p="16px"
-                                    display={"flex"}
-                                    style={{ justifyContent: "center" }}
-                                    onClick={() =>
+                                <FlipCard
+                                    handleClick={() =>
                                         setCurrCard({
                                             ...currCard,
                                             section: currCard.section == "front" ? "back" : "front",
                                         })
                                     }
-                                >
-                                    <Text
-                                        style={{
-                                            whiteSpace: "normal",
-                                            overflowWrap: "break-word",
-                                            wordBreak: "break-word",
-                                            alignItems: "center",
-                                            fontSize: "20px",
-                                        }}
-                                        display={"flex"}
-                                        mih={"200px"}
-                                    >
-                                        {currCard.section == "front" ? (
-                                            cards[currCard.card].special_type ? (
-                                                <SmartLatex content={cards[currCard.card].front}></SmartLatex>
-                                            ) : (
-                                                cards[currCard.card].front
-                                            )
-                                        ) : cards[currCard.card].special_type ? (
-                                            <SmartLatex content={cards[currCard.card].back}></SmartLatex>
-                                        ) : (
-                                            cards[currCard.card].back
-                                        )}
-                                    </Text>
-                                </Paper>
+                                    currCard={currCard}
+                                    cardInfo={cards[currCard.card]}
+                                />
                                 <Group
                                     display={"flex"}
                                     justify="center"

@@ -1,5 +1,5 @@
 export interface Set {
-    set_id: number;
+    set_id: string;
     user_id: string;
     name: string;
     maintain: boolean;
@@ -8,8 +8,8 @@ export interface Set {
 }
 
 export interface Card {
-    card_id: number;
-    set_id: number;
+    card_id: string;
+    set_id: string;
     front: string;
     back: string;
     created_at: string;

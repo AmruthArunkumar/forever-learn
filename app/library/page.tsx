@@ -85,7 +85,7 @@ export default function Library() {
         setAllSets(data as Set[]);
     };
 
-    const handleDeleteSet = async (set_id: number) => {
+    const handleDeleteSet = async (set_id: string) => {
         try {
             showLoadingNotification("Deleting Set...", `loading-delete-${set_id}`);
             const { data, error } = await supabase.from("sets").delete().eq("set_id", set_id);
@@ -110,14 +110,18 @@ export default function Library() {
             showErrorNotification("Set name cannot be empty");
         } else {
             try {
-                const { data, error } = await supabase.from("sets").insert({
-                    user_id: user!.id,
-                    name: name,
-                    maintain: true,
-                    type: cardType,
-                }).select().single();
+                const { data, error } = await supabase
+                    .from("sets")
+                    .insert({
+                        user_id: user!.id,
+                        name: name,
+                        maintain: true,
+                        type: cardType,
+                    })
+                    .select()
+                    .single();
                 if (error) throw error;
-                console.log(data)
+                console.log(data);
                 router.push(`/set/${data.set_id}/add-card`);
             } catch (error) {
                 showErrorNotification("Try again later");
@@ -125,7 +129,7 @@ export default function Library() {
         }
     };
 
-    const handleSetClicked = (id: number) => {
+    const handleSetClicked = (id: string) => {
         router.push(`/set/${id}`);
     };
 

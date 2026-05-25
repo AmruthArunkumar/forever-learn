@@ -14,6 +14,14 @@ interface DailyReviewEmailProps {
     }[];
 }
 
+const shuffle = (array: any[]) => {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+};
+
 export function DailyReviewEmail({ cards = [] }: DailyReviewEmailProps) {
     return (
         <Html data-theme="light">
@@ -27,28 +35,30 @@ export function DailyReviewEmail({ cards = [] }: DailyReviewEmailProps) {
                     <Hr style={divider} />
 
                     {/* Loop through the cards */}
-                    {cards.map((card, index) => (
-                        <Section key={index} style={cardWrapper}>
-                            <Section style={frontSide}>
-                                <Text style={sideLabel}>Q{index}</Text>
-                                {card.special == "latex" ? (
-                                    <Img
-                                        src={card.backImageUrl!}
-                                        alt="Math Equation"
-                                        style={{
-                                            display: "block",
-                                            margin: "10px 0",
-                                            maxHeight: "80px",
-                                            backgroundColor: "#ffffff",
-                                            imageRendering: "crisp-edges",
-                                        }}
-                                    />
-                                ) : (
-                                    <Text style={cardContent}>{card.back}</Text>
-                                )}
+                    {shuffle(cards)
+                        .slice(0, 5)
+                        .map((card, index) => (
+                            <Section key={index} style={cardWrapper}>
+                                <Section style={frontSide}>
+                                    <Text style={sideLabel}>Q{index}</Text>
+                                    {card.special == "latex" ? (
+                                        <Img
+                                            src={card.frontImageUrl!}
+                                            alt="Math Equation"
+                                            style={{
+                                                display: "block",
+                                                margin: "10px 0",
+                                                maxHeight: "80px",
+                                                backgroundColor: "#ffffff",
+                                                imageRendering: "crisp-edges",
+                                            }}
+                                        />
+                                    ) : (
+                                        <Text style={cardContent}>{card.front}</Text>
+                                    )}
+                                </Section>
                             </Section>
-                        </Section>
-                    ))}
+                        ))}
 
                     {/* Bottom Action Call */}
                     <Section style={actionSection}>

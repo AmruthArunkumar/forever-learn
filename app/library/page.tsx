@@ -99,7 +99,6 @@ export default function Library() {
 
     const [opened, { open, close }] = useDisclosure(false);
     const [name, setName] = useState<string>("");
-    const [cardType, setCardType] = useState("text");
 
     const handleAddSetClicked = () => {
         open();
@@ -116,7 +115,6 @@ export default function Library() {
                         user_id: user!.id,
                         name: name,
                         maintain: true,
-                        type: cardType,
                     })
                     .select()
                     .single();
@@ -150,34 +148,6 @@ export default function Library() {
                             Create
                         </Button>
                     </Group>
-                    <SegmentedControl
-                        value={cardType}
-                        onChange={setCardType}
-                        fullWidth
-                        size="md"
-                        radius="xs"
-                        color="pale-green"
-                        data={[
-                            {
-                                value: "text",
-                                label: (
-                                    <Center style={{ gap: rem(10) }}>
-                                        <KeyboardRoundedIcon />
-                                        <span>Text</span>
-                                    </Center>
-                                ),
-                            },
-                            {
-                                value: "handwritten",
-                                label: (
-                                    <Center style={{ gap: rem(10) }}>
-                                        <CreateRoundedIcon />
-                                        <span>Handwritten</span>
-                                    </Center>
-                                ),
-                            },
-                        ]}
-                    />
                 </Stack>
             </Modal>
             <Box style={{ height: "60px" }}>

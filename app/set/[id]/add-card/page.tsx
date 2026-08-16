@@ -62,7 +62,7 @@ export default function AddCard() {
             showErrorNotification("Front and back text are required");
         } else {
             try {
-                const { data, error } = await supabase.from("cards").insert({ set_id: id, front: front, back: back });
+                const { data, error } = await supabase.from("cards").insert({ set_id: id, front: front, back: back, special_type: "latex" });
                 if (error) throw error;
                 showSuccessNotification("Card added to set!");
             } catch (error) {

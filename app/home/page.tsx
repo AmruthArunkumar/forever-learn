@@ -58,12 +58,12 @@ export default function Home() {
     }, [user]);
 
     return (
-        <Box style={{ width: "100vw", height: "100vh", display: "flex", flexDirection: "column" }}>
-            <Box style={{ height: "60px" }}>
+        <Box style={{ width: "100vw", height: "100dvh", display: "flex", flexDirection: "column" }}>
+            <Box style={{ height: "60px", flexShrink: 0 }}>
                 <TabHeader tab={0} />
             </Box>
             {user && (
-                <Box flex={1} display={"flex"} m={"8px"} style={{ flexDirection: "column" }}>
+                <Box flex={1} display={"flex"} m={"8px"} style={{ flexDirection: "column", overflowY: "auto" }}>
                     Home Page: Under Construction
                 </Box>
             )}

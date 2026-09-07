@@ -1,7 +1,7 @@
 "use client";
 
 import { ActionIcon, Box, Button, Group, Input, NativeSelect, SegmentedControl, Text, Textarea } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TabHeader from "@/components/TabHeader";
 import { supabase } from "@/app/supabase/config";
 import { useParams, useRouter } from "next/navigation";
@@ -12,6 +12,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { IconButton } from "@mui/material";
 import { showErrorNotification, showSuccessNotification } from "@/utility/notification";
 import { SmartLatex } from "@/utility/smartLatex";
+import Canvas from "@/components/Canvas";
+import { Stroke } from "@/utility/types";
 
 export default function AddCard() {
     const [user, setUser] = useState<User | null>(null);
@@ -54,16 +56,23 @@ export default function AddCard() {
         }
     }, [user]);
 
-    const [front, setFront] = useState<string>("");
-    const [back, setBack] = useState<string>("");
+    const front = useRef<Stroke[]>([]);
+    const back = useRef<Stroke[]>([]);
 
     const handleAddCard = async () => {
-        if (front == "" || back == "") {
-            showErrorNotification("Front and back text are required");
+        if (front.current.length == 0 || back.current.length == 0) {
+            showErrorNotification("Front and back drawings are required");
         } else {
             try {
-                const { data, error } = await supabase.from("cards").insert({ set_id: id, front: front, back: back, special_type: "latex" });
+                const { data, error } = await supabase.from("cards").insert({
+                    set_id: id,
+                    front: front,
+                    back: back,
+                    special_type: "draw",
+                });
                 if (error) throw error;
+                front.current = [];
+                back.current = [];
                 showSuccessNotification("Card added to set!");
             } catch (error) {
                 showErrorNotification("Try again later");
@@ -72,7 +81,14 @@ export default function AddCard() {
     };
 
     return (
-        <Box style={{ width: "100vw", height: "100vh", display: "flex", flexDirection: "column" }}>
+        <Box
+            style={{
+                width: "100vw",
+                height: "100vh",
+                display: "flex",
+                flexDirection: "column",
+            }}
+        >
             <Box style={{ height: "60px" }}>
                 <Header />
             </Box>
@@ -92,41 +108,14 @@ export default function AddCard() {
                         <Button
                             rightSection={<SaveIcon />}
                             radius={"xs"}
-                            size="md"
+                            size="sm"
                             color="pale-green"
                             onClick={handleAddCard}
                         >
-                            Save
+                            Create
                         </Button>
                     </Group>
-                    <Text fw={700} size="lg" pb={"10px"} pt={"10px"}>
-                        Front
-                    </Text>
-                    <Textarea
-                        value={front}
-                        onChange={(e) => setFront(e.currentTarget.value)}
-                        size="md"
-                        radius="xs"
-                        placeholder="Enter Text Here"
-                        autosize
-                        minRows={4}
-                        pb={"8px"}
-                    />
-                    <SmartLatex content={front}></SmartLatex>
-                    <Text fw={700} size="lg" pb={"10px"} pt={"10px"}>
-                        Back
-                    </Text>
-                    <Textarea
-                        value={back}
-                        onChange={(e) => setBack(e.currentTarget.value)}
-                        size="md"
-                        radius="xs"
-                        placeholder="Enter Text Here"
-                        autosize
-                        minRows={4}
-                        pb={"8px"}
-                    />
-                    <SmartLatex content={back}></SmartLatex>
+                    <Canvas front={front} back={back} />
                 </Box>
             )}
         </Box>

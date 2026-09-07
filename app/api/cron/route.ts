@@ -8,11 +8,6 @@ const client = new Client({
     token: process.env.QSTASH_TOKEN!,
 });
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SECRET_KEY;
-
-const supabase = createClient(supabaseUrl!, supabaseKey!);
-
 const BASE_URL = process.env.APP_URL ? `https://${process.env.APP_URL}` : `http://localhost:3000`;
 
 export async function GET(request: NextRequest) {
@@ -21,9 +16,7 @@ export async function GET(request: NextRequest) {
         const cronSecret = process.env.CRON_SECRET;
 
         if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-            return new Response("Unauthorized", {
-                status: 401,
-            });
+            return new Response("Unauthorized", { status: 401 });
         }
     }
 

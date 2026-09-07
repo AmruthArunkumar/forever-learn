@@ -21,6 +21,7 @@ import {
     Stack,
     Text,
     Title,
+    Transition,
     Typography,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
@@ -36,6 +37,7 @@ import KeyboardRoundedIcon from "@mui/icons-material/KeyboardRounded";
 import CreateRoundedIcon from "@mui/icons-material/CreateRounded";
 import AddIcon from "@mui/icons-material/Add";
 import StyleRoundedIcon from "@mui/icons-material/StyleRounded";
+import TextFieldsIcon from "@mui/icons-material/TextFields";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditIcon from "@mui/icons-material/Edit";
@@ -52,6 +54,8 @@ export default function SetViewer() {
     const router = useRouter();
     const params = useParams();
     const id = params.id;
+
+    const [menuOpen, setMenuOpen] = useState(false);
 
     useEffect(() => {
         let ignore = false;
@@ -248,16 +252,54 @@ export default function SetViewer() {
                                 })}
                         </SimpleGrid>
                         <Affix position={{ bottom: 25, right: 25 }}>
-                            <ActionIcon
-                                color="pale-green"
-                                radius="xl"
-                                size={60}
-                                onClick={() => {
-                                    router.push(`/set/${id}/add-card`);
-                                }}
-                            >
-                                <AddIcon />
-                            </ActionIcon>
+                            <Box style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                                <Transition mounted={menuOpen} transition={"slide-up"} duration={250}>
+                                    {(styles) => (
+                                        <ActionIcon
+                                            color="pale-green"
+                                            radius="xl"
+                                            size={50}
+                                            style={styles}
+                                            onClick={() => {
+                                                setMenuOpen(false);
+                                                router.push(`/set/${id}/add-card/draw`);
+                                            }}
+                                        >
+                                            <CreateRoundedIcon />
+                                        </ActionIcon>
+                                    )}
+                                </Transition>
+                                <Transition mounted={menuOpen} transition={"slide-up"} duration={200}>
+                                    {(styles) => (
+                                        <ActionIcon
+                                            color="pale-green"
+                                            radius="xl"
+                                            size={50}
+                                            style={styles}
+                                            onClick={() => {
+                                                setMenuOpen(false);
+                                                router.push(`/set/${id}/add-card/text`);
+                                            }}
+                                        >
+                                            <TextFieldsIcon />
+                                        </ActionIcon>
+                                    )}
+                                </Transition>
+                                <ActionIcon
+                                    color={menuOpen ? "#444444" : "pale-green"}
+                                    radius="xl"
+                                    size={60}
+                                    onClick={() => {
+                                        setMenuOpen(!menuOpen);
+                                    }}
+                                    style={{
+                                        transform: menuOpen ? "rotate(45deg)" : "rotate(0deg)",
+                                        transition: "transform 200ms",
+                                    }}
+                                >
+                                    <AddIcon sx={{ fontSize: 35 }} />
+                                </ActionIcon>
+                            </Box>
                         </Affix>
                     </Box>
                 </Box>

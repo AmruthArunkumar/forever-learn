@@ -17,6 +17,8 @@ export interface Card {
     difficulty: number | null;
     last_review: string | null;
     special_type: string | null;
+    front_image: string | null;
+    back_image: string | null;
 }
 
 export interface CardStats {
@@ -30,3 +32,6 @@ export interface UserType {
     email: string;
     created_at?: string;
 }
+
+export type Point = { x: number; y: number; pressure: number };
+export type Stroke = { points: Point[]; color: string; width: number };

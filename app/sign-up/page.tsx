@@ -18,12 +18,14 @@ export default function SignUp() {
     const handleSignUp = async () => {
         try {
             const { data, error } = await supabase.auth.signUp({ email, password });
-            if (error) { throw error; }
+            if (error) {
+                throw error;
+            }
             setEmail("");
             setPassword("");
             router.push("/home");
         } catch (e) {
-            showErrorNotification(e instanceof AuthError ? e.message : "Please Try Again Later")
+            showErrorNotification(e instanceof AuthError ? e.message : "Please Try Again Later");
         }
     };
 

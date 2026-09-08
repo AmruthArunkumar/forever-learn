@@ -15,6 +15,8 @@ import { SmartLatex } from "@/utility/smartLatex";
 import Canvas from "@/components/Canvas";
 import { Stroke } from "@/utility/types";
 
+const BASE_URL = process.env.APP_URL ? `https://${process.env.APP_URL}` : `http://localhost:3000`;
+
 export default function AddCard() {
     const [user, setUser] = useState<User | null>(null);
 
@@ -59,23 +61,56 @@ export default function AddCard() {
     const front = useRef<Stroke[]>([]);
     const back = useRef<Stroke[]>([]);
 
-    const handleAddCard = async () => {
+    const frontCanvasRef = useRef<HTMLCanvasElement>(null);
+    const backCanvasRef = useRef<HTMLCanvasElement>(null);
+
+    const sizeRef = useRef({ width: 0, height: 0 });
+
+    const exportImage = async () => {
         if (front.current.length == 0 || back.current.length == 0) {
             showErrorNotification("Front and back drawings are required");
         } else {
+            const fCanvas = frontCanvasRef.current;
+            const bCanvas = backCanvasRef.current;
+            const fImage = fCanvas?.toDataURL("image/png");
+            const bImage = bCanvas?.toDataURL("image/png");
+            const cardId = crypto.randomUUID();
             try {
-                const { data, error } = await supabase.from("cards").insert({
-                    set_id: id,
-                    front: front,
-                    back: back,
-                    special_type: "draw",
-                });
-                if (error) throw error;
+                const [responseFront, responseBack, insertResult] = await Promise.all([
+                    fetch(`${BASE_URL}/api/image`, {
+                        method: "POST",
+                        body: JSON.stringify({ image: fImage, folder: `${user!.id}/${id}`, name: `${cardId}-front` }),
+                    }),
+                    fetch(`${BASE_URL}/api/image`, {
+                        method: "POST",
+                        body: JSON.stringify({ image: bImage, folder: `${user!.id}/${id}`, name: `${cardId}-back` }),
+                    }),
+                    supabase.from("cards").insert({
+                        set_id: id,
+                        front: `${user!.id}/${id}/${cardId}-front`,
+                        back: `${user!.id}/${id}/${cardId}-back`,
+                        special_type: "draw",
+                    }),
+                ]);
+                if (!responseFront.ok || !responseBack.ok) {
+                    throw new Error("Image upload failed");
+                }
+                if (insertResult.error) {
+                    throw insertResult.error;
+                }
                 front.current = [];
                 back.current = [];
+                const fctx = frontCanvasRef.current?.getContext("2d");
+                const { width, height } = sizeRef.current;
+                fctx?.clearRect(0, 0, width, height);
+                const bctx = backCanvasRef.current?.getContext("2d");
+                bctx?.clearRect(0, 0, width, height);
+                const [fData, bData] = await Promise.all([responseFront.json(), responseBack.json()]);
+                console.log(fData, bData, insertResult.data);
                 showSuccessNotification("Card added to set!");
             } catch (error) {
-                showErrorNotification("Try again later");
+                console.log(error);
+                showErrorNotification("Image Not Uploaded");
             }
         }
     };
@@ -84,7 +119,7 @@ export default function AddCard() {
         <Box
             style={{
                 width: "100vw",
-                height: "100vh",
+                height: "100dvh",
                 display: "flex",
                 flexDirection: "column",
             }}
@@ -98,10 +133,10 @@ export default function AddCard() {
                     display={"flex"}
                     p={"8px"}
                     w="100%"
-                    style={{ flexDirection: "column", alignSelf: "center" }}
+                    style={{ flexDirection: "column", alignSelf: "center", minHeight: 0 }}
                     maw={"1000px"}
                 >
-                    <Group display={"flex"} justify="space-between" h={50}>
+                    <Group display={"flex"} justify="space-between" h={50} style={{ flexShrink: 0 }}>
                         <ActionIcon variant="default" size="lg" onClick={() => router.back()} radius={"xs"}>
                             <ArrowBackIcon />
                         </ActionIcon>
@@ -110,12 +145,18 @@ export default function AddCard() {
                             radius={"xs"}
                             size="sm"
                             color="pale-green"
-                            onClick={handleAddCard}
+                            onClick={exportImage}
                         >
                             Create
                         </Button>
                     </Group>
-                    <Canvas front={front} back={back} />
+                    <Canvas
+                        front={front}
+                        back={back}
+                        frontCanvas={frontCanvasRef}
+                        backCanvas={backCanvasRef}
+                        sizeRef={sizeRef}
+                    />
                 </Box>
             )}
         </Box>

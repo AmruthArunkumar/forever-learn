@@ -1,33 +1,41 @@
 "use client";
 
 import { ActionIcon, Box, ColorSwatch, Flex, Group, SegmentedControl, Slider, Tooltip } from "@mantine/core";
-import { RefObject, useCallback, useEffect, useRef, useState } from "react";
+import { Ref, RefObject, useCallback, useEffect, useRef, useState } from "react";
 import UndoIcon from "@mui/icons-material/Undo";
 import ClearIcon from "@mui/icons-material/DeleteOutline";
 import { showErrorNotification } from "@/utility/notification";
 import { Stroke } from "@/utility/types";
 import { Circle } from "@mui/icons-material";
 
-const BASE_URL = process.env.APP_URL ? `https://${process.env.APP_URL}` : `http://localhost:3000`;
-
 const CARD_ASPECT_RATIO = 3 / 2;
 const STROKE_COLORS = ["#1a1b1e", "#e03131", "#1971c2", "#2f9e44", "#f08c00"];
 
-export default function Canvas({ front, back }: { front: RefObject<Stroke[]>; back: RefObject<Stroke[]> }) {
+export default function Canvas({
+    front,
+    back,
+    frontCanvas,
+    backCanvas,
+    sizeRef,
+}: {
+    front: RefObject<Stroke[]>;
+    back: RefObject<Stroke[]>;
+    frontCanvas: RefObject<HTMLCanvasElement | null>;
+    backCanvas: RefObject<HTMLCanvasElement | null>;
+    sizeRef: RefObject<{ width: number; height: number }>;
+}) {
+    const wrapperRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
     const drawing = useRef(false);
 
     const currentStroke = useRef<Stroke | null>(null);
-    const sizeRef = useRef({ width: 0, height: 0 });
 
     const [color, setColor] = useState(STROKE_COLORS[0]);
     const [strokeWidth, setStrokeWidth] = useState(3);
 
     const [imageSide, setImageSide] = useState("front");
 
-    const redraw = useCallback((side: string) => {
-        const canvas = canvasRef.current;
+    const redraw = useCallback((side: string, canvas: HTMLCanvasElement | null) => {
         const ctx = canvas?.getContext("2d");
         if (!canvas || !ctx) return;
         const { width, height } = sizeRef.current;
@@ -57,55 +65,54 @@ export default function Canvas({ front, back }: { front: RefObject<Stroke[]>; ba
     }, []);
 
     useEffect(() => {
-        const canvas = canvasRef.current;
+        const fCanvas = frontCanvas.current;
+        const bCanvas = backCanvas.current;
         const container = containerRef.current;
-        if (!canvas || !container) return;
+        const wrapper = wrapperRef.current;
+        if (!fCanvas || !bCanvas || !container || !wrapper) return;
 
-        const resize = () => {
-            const rect = container.getBoundingClientRect();
+        const resizeBoth = () => {
+            resize(fCanvas, "front");
+            resize(bCanvas, "back");
+        };
+
+        const resize = (canvas: HTMLCanvasElement, side: string) => {
+            const wrapperRect = wrapper.getBoundingClientRect();
+
+            let width = wrapperRect.width;
+            let height = width / CARD_ASPECT_RATIO;
+            if (height > wrapperRect.height) {
+                height = wrapperRect.height;
+                width = height * CARD_ASPECT_RATIO;
+            }
+
+            container.style.width = `${width}px`;
+            container.style.height = `${height}px`;
+
             const dpr = window.devicePixelRatio || 1;
-
-            sizeRef.current = { width: rect.width, height: rect.height };
-
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-            canvas.style.width = `${rect.width}px`;
-            canvas.style.height = `${rect.height}px`;
+            sizeRef.current = { width, height };
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            canvas.style.width = `${width}px`;
+            canvas.style.height = `${height}px`;
 
             const ctx = canvas.getContext("2d");
             if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-            redraw(imageSide);
+            redraw(side, canvas);
         };
 
-        resize();
-        const observer = new ResizeObserver(resize);
-        observer.observe(container);
+        resizeBoth();
+        const observer = new ResizeObserver(resizeBoth);
+        observer.observe(wrapper);
         return () => observer.disconnect();
-    }, [redraw]);
+    }, [redraw, imageSide]);
 
     const getNormalizedPos = (e: React.PointerEvent<HTMLCanvasElement>) => {
-        const rect = canvasRef.current!.getBoundingClientRect();
+        const rect = (imageSide == "front" ? frontCanvas : backCanvas).current!.getBoundingClientRect();
         return {
             x: (e.clientX - rect.left) / rect.width,
             y: (e.clientY - rect.top) / rect.height,
         };
-    };
-
-    const exportImage = async () => {
-        const canvas = canvasRef.current;
-        const image = canvas?.toDataURL("image/png");
-        try {
-            const response = await fetch(`${BASE_URL}/api/image`, {
-                method: "POST",
-                body: JSON.stringify({ image: image, folder: "UUID/setID", name: "name-front-back" }),
-            });
-            const data = await response.json();
-            console.log(data);
-        } catch (error) {
-            console.log(error);
-            showErrorNotification("Image Not Uploaded");
-        }
     };
 
     const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -117,11 +124,12 @@ export default function Canvas({ front, back }: { front: RefObject<Stroke[]>; ba
     };
 
     const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+        const canvas = (imageSide == "front" ? frontCanvas : backCanvas).current;
         if (!drawing.current || !currentStroke.current) return;
         const { x, y } = getNormalizedPos(e);
         const pressure = e.pressure > 0 ? e.pressure : 0.5;
         currentStroke.current.points.push({ x, y, pressure });
-        redraw(imageSide);
+        redraw(imageSide, canvas);
     };
 
     const handlePointerUp = () => {
@@ -133,18 +141,28 @@ export default function Canvas({ front, back }: { front: RefObject<Stroke[]>; ba
     };
 
     const handleUndo = () => {
+        const canvas = (imageSide == "front" ? frontCanvas : backCanvas).current;
         (imageSide == "front" ? front : back).current.pop();
-        redraw(imageSide);
+        redraw(imageSide, canvas);
     };
 
     const handleClear = () => {
-        // exportImage();
+        const canvas = (imageSide == "front" ? frontCanvas : backCanvas).current;
         (imageSide == "front" ? front : back).current = [];
-        redraw(imageSide);
+        redraw(imageSide, canvas);
     };
 
     return (
-        <Box>
+        <Box
+            style={{
+                display: "flex",
+                flexDirection: "column",
+                flex: 1,
+                minHeight: 0,
+                height: "100%",
+                alignContent: "center",
+            }}
+        >
             <Flex
                 justify="space-around"
                 align="center"
@@ -152,7 +170,7 @@ export default function Canvas({ front, back }: { front: RefObject<Stroke[]>; ba
                 pt={8}
                 mt={8}
                 mb={16}
-                style={{ border: "2px solid light-dark(#DDDDDD, #444444)" }}
+                style={{ border: "2px solid light-dark(#DDDDDD, #444444)", flexShrink: 0 }}
                 bdrs={4}
                 direction={{ base: "column", sm: "row" }}
                 gap={"16px"}
@@ -161,7 +179,7 @@ export default function Canvas({ front, back }: { front: RefObject<Stroke[]>; ba
                     value={imageSide}
                     onChange={(e) => {
                         setImageSide(e);
-                        redraw(e);
+                        redraw(e, (e == "front" ? frontCanvas : backCanvas).current);
                     }}
                     variant="default"
                     size="sm"
@@ -172,7 +190,7 @@ export default function Canvas({ front, back }: { front: RefObject<Stroke[]>; ba
                         { label: "Back", value: "back" },
                     ]}
                 />
-                <Group gap={8}>
+                <Group gap={8} bg={"light-dark(#DDDDDD, #444444)"} p={8} bdrs={8}>
                     {STROKE_COLORS.map((c) => (
                         <ColorSwatch
                             key={c}
@@ -214,25 +232,45 @@ export default function Canvas({ front, back }: { front: RefObject<Stroke[]>; ba
                 </Group>
             </Flex>
             <Box
-                ref={containerRef}
+                ref={wrapperRef}
                 style={{
-                    width: "100%",
-                    aspectRatio: `${CARD_ASPECT_RATIO}`,
-                    borderRadius: 4,
-                    border: "2px solid light-dark(#DDDDDD, #444444)",
-                    background: "var(--mantine-color-white)",
+                    flex: 1,
+                    minHeight: 0,
+                    display: "flex",
+                    justifyContent: "center",
                     overflow: "hidden",
-                    touchAction: "none",
                 }}
             >
-                <canvas
-                    ref={canvasRef}
-                    onPointerDown={handlePointerDown}
-                    onPointerMove={handlePointerMove}
-                    onPointerUp={handlePointerUp}
-                    onPointerLeave={handlePointerUp}
-                    style={{ display: "block", cursor: "crosshair" }}
-                />
+                <Box
+                    ref={containerRef}
+                    style={{
+                        maxWidth: "100%",
+                        maxHeight: "100%",
+                        aspectRatio: `${CARD_ASPECT_RATIO}`,
+                        borderRadius: 4,
+                        border: "2px solid light-dark(#DDDDDD, #444444)",
+                        background: "var(--mantine-color-white)",
+                        overflow: "hidden",
+                        touchAction: "none",
+                    }}
+                >
+                    <canvas
+                        ref={frontCanvas}
+                        onPointerDown={handlePointerDown}
+                        onPointerMove={handlePointerMove}
+                        onPointerUp={handlePointerUp}
+                        onPointerLeave={handlePointerUp}
+                        style={{ display: imageSide == "front" ? "block" : "none", cursor: "crosshair" }}
+                    />
+                    <canvas
+                        ref={backCanvas}
+                        onPointerDown={handlePointerDown}
+                        onPointerMove={handlePointerMove}
+                        onPointerUp={handlePointerUp}
+                        onPointerLeave={handlePointerUp}
+                        style={{ display: imageSide == "back" ? "block" : "none", cursor: "crosshair" }}
+                    />
+                </Box>
             </Box>
         </Box>
     );

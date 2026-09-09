@@ -46,6 +46,8 @@ import { checkFading, checkForgotten, checkLearning, checkStrong, interval, retr
 import { SmartLatex } from "@/utility/smartLatex";
 import { RowCard } from "@/components/FlashCard";
 
+const BASE_URL = process.env.APP_URL ? `https://${process.env.APP_URL}` : `http://localhost:3000`;
+
 export default function SetViewer() {
     const [user, setUser] = useState<User | null>(null);
     const [cards, setCards] = useState<Card[] | null>(null);
@@ -110,8 +112,14 @@ export default function SetViewer() {
 
     const handleDeleteCard = async (card_id: string) => {
         try {
-            const { data, error } = await supabase.from("cards").delete().eq("card_id", card_id);
-            if (error) throw error;
+            const [supabaseDelete, cloudinaryDelete] = await Promise.all([
+                supabase.from("cards").delete().eq("card_id", card_id),
+                fetch(`${BASE_URL}/api/image`, {
+                    method: "POST",
+                    body: JSON.stringify({ image: fImage, folder: `${user!.id}/${id}`, name: `${cardId}-front` }),
+                }),
+            ]);
+            if (supabaseDelete.error) throw supabaseDelete.error;
             showSuccessNotification("Card removed from set!");
             await handleGetAllCardsInSet();
         } catch (error) {

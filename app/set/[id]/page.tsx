@@ -112,12 +112,13 @@ export default function SetViewer() {
 
     const handleDeleteCard = async (card_id: string) => {
         try {
-            const [supabaseDelete, cloudinaryDelete] = await Promise.all([
+            // const [supabaseDelete, cloudinaryDelete] = await Promise.all([
+            const [supabaseDelete] = await Promise.all([
                 supabase.from("cards").delete().eq("card_id", card_id),
-                fetch(`${BASE_URL}/api/image`, {
-                    method: "POST",
-                    body: JSON.stringify({ image: fImage, folder: `${user!.id}/${id}`, name: `${cardId}-front` }),
-                }),
+                // fetch(`${BASE_URL}/api/image`, {
+                //     method: "POST",
+                //     body: JSON.stringify({ image: fImage, folder: `${user!.id}/${id}`, name: `${cardId}-front` }),
+                // }),
             ]);
             if (supabaseDelete.error) throw supabaseDelete.error;
             showSuccessNotification("Card removed from set!");

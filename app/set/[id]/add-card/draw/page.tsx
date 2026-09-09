@@ -86,6 +86,7 @@ export default function AddCard() {
                         body: JSON.stringify({ image: bImage, folder: `${user!.id}/${id}`, name: `${cardId}-back` }),
                     }),
                     supabase.from("cards").insert({
+                        card_id: cardId,
                         set_id: id,
                         front: `${user!.id}/${id}/${cardId}-front`,
                         back: `${user!.id}/${id}/${cardId}-back`,
